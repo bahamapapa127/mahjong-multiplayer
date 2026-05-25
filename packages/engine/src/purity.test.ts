@@ -43,15 +43,6 @@ const bannedPatterns: { pattern: RegExp; reason: string }[] = [
     pattern: /\brequire\s*\(/,
     reason: "require() — engine is ESM only",
   },
-  {
-    pattern: /from\s+["']node:/,
-    reason: "node:* import — engine has no I/O",
-  },
-  {
-    pattern:
-      /from\s+["'](?:fs|fs\/promises|path|path\/posix|path\/win32|os|child_process|net|http|http2|https|stream|stream\/web|stream\/promises|stream\/consumers|events|util|util\/types|url|worker_threads|cluster|dgram|dns|dns\/promises|readline|readline\/promises|repl|tls|tty|vm|zlib|perf_hooks|async_hooks|assert|assert\/strict|crypto|inspector|inspector\/promises|module|process|punycode|querystring|string_decoder|sys|timers|timers\/promises|trace_events|wasi)["']/,
-    reason: "bare Node built-in import — engine has no I/O",
-  },
 ];
 
 function collectSourceFiles(dir: string): string[] {

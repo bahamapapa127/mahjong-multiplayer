@@ -42,3 +42,6 @@ jobs:
 
       - name: Typecheck + Lint + Test
         run: pnpm turbo run typecheck lint test
+
+      - name: Dependency rules
+        run: pnpm deps:check
