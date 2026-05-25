@@ -11,13 +11,14 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run --passWithNoTests --coverage",
     "test:watch": "vitest"
   },
   "dependencies": {
     "@mahjong/shared": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "24.12.4",
     "fast-check": "4.8.0"
   }
 }
