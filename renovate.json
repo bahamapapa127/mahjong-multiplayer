@@ -21,7 +21,6 @@
     {
       "matchUpdateTypes": ["patch"],
       "automerge": true,
-      "automergeType": "branch",
       "platformAutomerge": true
     },
     {
