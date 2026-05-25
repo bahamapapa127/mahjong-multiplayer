@@ -15,7 +15,8 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "format": "biome format --write .",
-    "check": "turbo run typecheck lint test",
+    "deps:check": "depcruise --validate apps packages",
+    "check": "turbo run typecheck lint test && pnpm deps:check",
     "prepare": "lefthook install"
   },
   "devDependencies": {
@@ -24,6 +25,7 @@
     "@commitlint/config-conventional": "21.0.1",
     "@types/node": "24.12.4",
     "@vitest/coverage-v8": "4.1.7",
+    "dependency-cruiser": "17.4.2",
     "lefthook": "2.1.8",
     "tsx": "4.22.3",
     "turbo": "2.9.14",

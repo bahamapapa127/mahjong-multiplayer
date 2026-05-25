@@ -17,4 +17,4 @@ pre-push:
   parallel: true
   commands:
     check:
-      run: pnpm turbo run typecheck lint test
+      run: pnpm check
