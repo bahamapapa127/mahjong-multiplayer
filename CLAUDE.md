@@ -74,6 +74,22 @@ green" or "auto-merge fires"; those belong in Notes.
   `refactor:`, `perf:`, `build:`, `ci:`, or `revert:`. Lowercase subject, 1-100 chars. The
   `commit-msg` hook (commitlint) rejects non-conforming messages.
 
+## Working with AI agents (Claude Code)
+
+This project uses Claude Code as the primary coding agent. Two rules exist to compensate for
+agent failure modes:
+
+- **Context7 before writing code/config for post-cutoff libraries.** The current agent's
+  knowledge cutoff is January 2026. Any library whose latest major was released at or after
+  that date must be looked up via the Context7 MCP (`mcp__context7__query-docs`) before
+  writing non-trivial config or API calls. As of writing, this applies to TypeScript 6,
+  Vitest 4, Lefthook 2, fast-check 4, commitlint 21 — and any future library matching the
+  rule. Skipping this risks fabricated API shapes that look right but don't exist.
+- **`/review` for non-trivial AI-authored PRs.** Renovate / mechanical PRs go straight to
+  auto-merge on green CI. PRs that introduce or modify logic should be run through the
+  `/review` skill before merging — CI catches typecheck/lint/test, not design issues, dead
+  code, or weird abstractions.
+
 ## Glossary (American Mahjong)
 
 - **Tile**: one physical playing piece. 152 total in a standard American set.
