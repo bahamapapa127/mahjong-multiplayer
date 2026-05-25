@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+
+# Test / coverage
+coverage/
+*.tsbuildinfo
+
+# Turborepo cache
+.turbo/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor (we DO commit .vscode/ workspace settings)
+.idea/
+*.swp
+*.swo
+*~

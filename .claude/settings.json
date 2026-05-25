@@ -1,0 +1,77 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm:*)",
+      "Bash(pnpx:*)",
+      "Bash(node:*)",
+      "Bash(npx:*)",
+      "Bash(corepack:*)",
+      "Bash(turbo:*)",
+      "Bash(vitest:*)",
+      "Bash(biome:*)",
+      "Bash(tsc:*)",
+      "Bash(tsx:*)",
+      "Bash(lefthook:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git remote:*)",
+      "Bash(git stash:*)",
+      "Bash(git fetch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git merge:*)",
+      "Bash(git pull:*)",
+      "Bash(git push)",
+      "Bash(git push origin:*)",
+      "Bash(gh:*)",
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Bash(where:*)",
+      "Bash(which:*)",
+      "Bash(cat:*)",
+      "Read(**)",
+      "Glob(**)",
+      "Grep(**)",
+      "Edit(**)",
+      "Write(**)"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf $HOME:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard origin/:*)",
+      "Bash(git clean -fdx:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/format.mjs"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/guard.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}

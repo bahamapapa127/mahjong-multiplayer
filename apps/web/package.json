@@ -1,0 +1,12 @@
+{
+  "name": "@mahjong/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Stub. Will host the React + Vite client.",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "test": "vitest run --passWithNoTests"
+  }
+}

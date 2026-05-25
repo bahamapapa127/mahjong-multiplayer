@@ -1,0 +1,15 @@
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "*.{ts,tsx,js,jsx,json,jsonc}"
+      run: pnpm biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+    typecheck-affected:
+      run: pnpm turbo run typecheck --filter='[HEAD]'
+
+pre-push:
+  parallel: true
+  commands:
+    check:
+      run: pnpm turbo run typecheck lint test

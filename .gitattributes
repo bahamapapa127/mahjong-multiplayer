@@ -1,0 +1,17 @@
+# Force LF line endings in the repo (prevents Windows CRLF churn).
+* text=auto eol=lf
+
+# Treat common binary types as binary.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# Lockfile: don't show in diffs by default.
+pnpm-lock.yaml -diff

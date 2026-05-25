@@ -1,0 +1,10 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# Approve postinstall scripts for trusted deps. pnpm blocks postinstalls by default
+# (supply-chain safety). esbuild is needed by Vitest; lefthook needs its script to
+# place its Go binary on PATH.
+allowBuilds:
+  esbuild: true
+  lefthook: true

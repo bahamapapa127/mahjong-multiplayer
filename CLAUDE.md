@@ -1,0 +1,93 @@
+# Mahjong Multiplayer — Project Conventions
+
+## What this is
+
+An online multiplayer American Mahjong game (chess.com-style: real-time lobbies of 4, modern
+web UI). Server-authoritative; deterministic engine; ship our own starter winning-hands "card"
+(NMJL is copyrighted — don't hardcode it).
+
+## Stack
+
+| Layer | Choice |
+|-------|--------|
+| Runtime | Node 24 LTS (pinned `.nvmrc`, `engines.node`) |
+| Pkg mgr | pnpm 11.x (pinned `packageManager`) |
+| Monorepo | pnpm workspaces + Turborepo |
+| Language | TypeScript strict (see `tsconfig.base.json`) |
+| Lint+format | Biome 2.x — single tool, format on save |
+| Tests | Vitest 3 (workspace mode) |
+| Git hooks | Lefthook (parallel, single YAML) |
+| CI | GitHub Actions (`.github/workflows/ci.yml`) |
+| Future runtime | Colyseus (server), React + Vite (web) |
+
+## Package map
+
+- `packages/engine` — pure game logic. No I/O, no networking, no global randomness. Must be
+  fully simulatable from tests with a seed.
+- `packages/shared` — types shared between engine, server, and web.
+- `apps/server` — *stub*. Will host the authoritative Colyseus server.
+- `apps/web` — *stub*. Will host the React + Vite client.
+
+## Common commands
+
+```sh
+pnpm install               # install everything
+pnpm test                  # run all tests (Turbo-cached)
+pnpm test:watch            # interactive Vitest
+pnpm typecheck             # turbo run typecheck (Turbo-cached)
+pnpm lint                  # biome lint via turbo
+pnpm format                # biome format --write across repo
+pnpm check                 # typecheck + lint + test
+pnpm --filter @mahjong/engine test   # scope to one package
+```
+
+After `pnpm install`, lefthook auto-installs the git hooks (`prepare` script).
+
+## Conventions
+
+- **Engine is pure.** No `Math.random()`, no `Date.now()`, no `process`, no fs/net. Pass a
+  seed-able RNG and a clock through the call signature. The server is the source of all I/O.
+- **Cards are data.** Winning-hand definitions live in JSON/TS data files, not in if/else
+  ladders. New hand variations should not require engine code changes.
+- **Strict TS everywhere.** `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` are on.
+  Embrace explicit types; don't lean on `any` or non-null assertions.
+- **No comments unless they explain WHY.** Names and types document the WHAT. Comments are
+  for non-obvious constraints, invariants, or workarounds.
+- **Tests live next to source.** `tile.ts` and `tile.test.ts` in the same directory.
+
+## Glossary (American Mahjong)
+
+- **Tile**: one physical playing piece. 152 total in a standard American set.
+- **Suit**: cracks (crak), dots (dot), bams (bam) — 1-9, four of each.
+- **Honors**: winds (N/E/S/W) and dragons (red/green/white) — four of each.
+- **Flowers**: 8 special tiles, no suit; usually scored or used to swap for jokers.
+- **Jokers**: 8 wild tiles, usable only in certain hands depending on the card.
+- **Card**: the published list of legal winning hands for the year. Players must match one
+  exactly to win. Ours is custom; never use the NMJL card.
+- **Charleston**: opening tile-passing ritual before play begins.
+- **Pung / Kong / Quint**: 3 / 4 / 5 of a kind.
+
+## Don'ts
+
+- Don't add I/O or global state to `packages/engine`.
+- Don't hardcode the NMJL card (copyright). Use the `packages/engine/cards/` data files.
+- Don't use `Math.random()` anywhere in the engine — pass a seeded RNG.
+- Don't use `// @ts-ignore` or `as any`. Prefer narrowing or fixing the type.
+- Don't bypass git hooks with `--no-verify` unless the user explicitly asks.
+- Don't commit to `main` directly. Branch + PR + green CI.
+
+## Setup history
+
+The original project-setup plan (with rationale for every tooling choice) lives at
+`C:\Users\apmil\.claude\plans\i-was-working-in-nested-cherny.md`. Read it if you need to
+understand WHY a tooling decision was made before changing it.
+
+## Automation already wired
+
+- **Format on save** in VSCode (Biome).
+- **PostToolUse hook** auto-formats every file Claude edits.
+- **PreToolUse hook** blocks foot-gun Bash patterns (`rm -rf /`, force-push to main, etc.).
+- **Pre-commit**: Biome on staged files + Turbo typecheck on affected packages.
+- **Pre-push**: full typecheck + lint + test.
+- **CI**: GitHub Actions runs typecheck + lint + test + build on every PR with Turbo cache.
+- **MCP**: Context7 available for fetching up-to-date library docs.
