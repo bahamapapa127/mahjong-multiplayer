@@ -43,6 +43,22 @@ pnpm --filter @mahjong/engine test   # scope to one package
 
 After `pnpm install`, lefthook auto-installs the git hooks (`prepare` script).
 
+## Branching & PRs
+
+`main` is protected: required CI, required PR, linear history, no force-push. The flow:
+
+```sh
+git checkout -b <type>/<short-desc>
+# edit, commit (commit-msg hook enforces conventional commits)
+git push -u origin <branch>
+gh pr create --base main --head <branch> --title "..." --body "..."
+gh pr merge <N> --auto --squash --delete-branch
+```
+
+GitHub auto-merges when CI is green and deletes the branch on merge. **PR test plan checklist
+should only contain locally-verified items** — never list post-creation outcomes like "CI
+green" or "auto-merge fires"; those belong in Notes.
+
 ## Conventions
 
 - **Engine is pure.** No `Math.random()`, no `Date.now()`, no `process`, no fs/net. Pass a
@@ -54,6 +70,9 @@ After `pnpm install`, lefthook auto-installs the git hooks (`prepare` script).
 - **No comments unless they explain WHY.** Names and types document the WHAT. Comments are
   for non-obvious constraints, invariants, or workarounds.
 - **Tests live next to source.** `tile.ts` and `tile.test.ts` in the same directory.
+- **Conventional commits.** Subject prefixed with `feat:`, `fix:`, `chore:`, `docs:`, `test:`,
+  `refactor:`, `perf:`, `build:`, `ci:`, or `revert:`. Lowercase subject, 1-100 chars. The
+  `commit-msg` hook (commitlint) rejects non-conforming messages.
 
 ## Glossary (American Mahjong)
 
@@ -75,6 +94,7 @@ After `pnpm install`, lefthook auto-installs the git hooks (`prepare` script).
 - Don't use `// @ts-ignore` or `as any`. Prefer narrowing or fixing the type.
 - Don't bypass git hooks with `--no-verify` unless the user explicitly asks.
 - Don't commit to `main` directly. Branch + PR + green CI.
+- Don't write non-conventional commit messages. The hook will reject them.
 
 ## Setup history
 
@@ -88,6 +108,9 @@ understand WHY a tooling decision was made before changing it.
 - **PostToolUse hook** auto-formats every file Claude edits.
 - **PreToolUse hook** blocks foot-gun Bash patterns (`rm -rf /`, force-push to main, etc.).
 - **Pre-commit**: Biome on staged files + Turbo typecheck on affected packages.
+- **Commit-msg**: commitlint enforces conventional-commits format.
 - **Pre-push**: full typecheck + lint + test.
-- **CI**: GitHub Actions runs typecheck + lint + test + build on every PR with Turbo cache.
+- **CI**: GitHub Actions runs typecheck + lint + test on every PR with Turbo cache.
+- **Branch protection**: `main` requires CI green + PR + linear history; auto-merge available.
+- **Renovate**: weekly Monday grouped dep PRs; patches auto-merge on green CI.
 - **MCP**: Context7 available for fetching up-to-date library docs.
