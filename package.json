@@ -20,8 +20,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
-    "@commitlint/cli": "19.8.1",
-    "@commitlint/config-conventional": "19.8.1",
+    "@commitlint/cli": "21.0.1",
+    "@commitlint/config-conventional": "21.0.1",
     "@types/node": "24.12.4",
     "@vitest/coverage-v8": "3.2.4",
     "lefthook": "1.13.6",
