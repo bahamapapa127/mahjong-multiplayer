@@ -15,7 +15,7 @@ web UI). Server-authoritative; deterministic engine; ship our own starter winnin
 | Monorepo | pnpm workspaces + Turborepo |
 | Language | TypeScript strict (see `tsconfig.base.json`) |
 | Lint+format | Biome 2.x — single tool, format on save |
-| Tests | Vitest 3 (workspace mode) |
+| Tests | Vitest 4 (workspace mode) |
 | Git hooks | Lefthook (parallel, single YAML) |
 | CI | GitHub Actions (`.github/workflows/ci.yml`) |
 | Future runtime | Colyseus (server), React + Vite (web) |
@@ -37,7 +37,8 @@ pnpm test:watch            # interactive Vitest
 pnpm typecheck             # turbo run typecheck (Turbo-cached)
 pnpm lint                  # biome lint via turbo
 pnpm format                # biome format --write across repo
-pnpm check                 # typecheck + lint + test
+pnpm check                 # typecheck + lint + test + deps:check
+pnpm deps:check            # dependency-cruiser: workspace boundary rules
 pnpm --filter @mahjong/engine test   # scope to one package
 ```
 
@@ -120,13 +121,28 @@ understand WHY a tooling decision was made before changing it.
 
 ## Automation already wired
 
-- **Format on save** in VSCode (Biome).
-- **PostToolUse hook** auto-formats every file Claude edits.
+- **Format on save** in VSCode (Biome) + PostToolUse hook auto-formats every file Claude edits.
 - **PreToolUse hook** blocks foot-gun Bash patterns (`rm -rf /`, force-push to main, etc.).
+- **Sensitive-path edits prompt** — `.github/`, `lefthook.yml`, `renovate.json`, root
+  `package.json`, etc. require per-touch confirmation via Claude's `ask` permission.
 - **Pre-commit**: Biome on staged files + Turbo typecheck on affected packages.
 - **Commit-msg**: commitlint enforces conventional-commits format.
-- **Pre-push**: full typecheck + lint + test.
-- **CI**: GitHub Actions runs typecheck + lint + test on every PR with Turbo cache.
+- **Pre-push**: full `pnpm check` (typecheck + lint + test + dep-cruiser).
+- **Engine purity is enforced.** [`packages/engine/src/purity.test.ts`](packages/engine/src/purity.test.ts)
+  scans non-test engine source for banned identifiers (`Math.random`, `Date.now`,
+  `process.*`, `crypto.*`, etc.).
+- **Engine coverage threshold = 100%.** Configured in
+  [`packages/engine/vitest.config.ts`](packages/engine/vitest.config.ts). Engine test script
+  runs `--coverage` by default, so the gate fires on every check.
+- **Module boundaries** enforced by [`.dependency-cruiser.cjs`](.dependency-cruiser.cjs):
+  engine cannot import Node built-ins, engine cannot import from apps, shared cannot
+  import from anywhere else, no circular deps.
+- **CI**: GitHub Actions runs `pnpm check` + dependency-review on every PR with Turbo cache.
+  Actions are SHA-pinned (not tag refs) and Renovate-maintained.
 - **Branch protection**: `main` requires CI green + PR + linear history; auto-merge available.
-- **Renovate**: weekly Monday grouped dep PRs; patches auto-merge on green CI.
-- **MCP**: Context7 available for fetching up-to-date library docs.
+- **Renovate**: weekly Monday grouped dep PRs; patches auto-merge on green CI; lock-file
+  maintenance auto-merges; major bumps need manual review.
+- **MCP**: Context7 available for fetching up-to-date library docs (and mandated by the
+  rule above for post-cutoff libraries).
+- **Security posture** documented in [`SECURITY.md`](SECURITY.md) with the deferred-items
+  roadmap.
