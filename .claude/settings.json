@@ -34,11 +34,28 @@
       "Bash(where:*)",
       "Bash(which:*)",
       "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(stat:*)",
+      "Bash(diff:*)",
+      "Bash(pwd:*)",
+      "Bash(date:*)",
+      "Bash(git blame:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git config --get:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(cp:*)",
       "Read(**)",
       "Glob(**)",
       "Grep(**)",
       "Edit(**)",
-      "Write(**)"
+      "Write(**)",
+      "ToolSearch",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs"
     ],
     "ask": [
       "Edit(/.github/**)",
@@ -85,7 +102,12 @@
       "Bash(git push --force:*)",
       "Bash(git push -f:*)",
       "Bash(git reset --hard origin/:*)",
-      "Bash(git clean -fdx:*)"
+      "Bash(git clean -fdx:*)",
+      "Bash(pnpm publish:*)",
+      "Bash(npm publish:*)",
+      "Bash(yarn publish:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(gh release delete:*)"
     ]
   },
   "hooks": {
