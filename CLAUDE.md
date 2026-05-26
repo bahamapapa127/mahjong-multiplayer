@@ -76,6 +76,31 @@ green" or "auto-merge fires"; those belong in Notes.
   `refactor:`, `perf:`, `build:`, `ci:`, or `revert:`. Lowercase subject, 1-100 chars. The
   `commit-msg` hook (commitlint) rejects non-conforming messages.
 
+### Code conventions
+
+How engine and shared code is shaped. Keep these in mind when adding or modifying TypeScript files.
+
+1. **Module layout.** Files follow a fixed top-to-bottom order: imports → types → module-level
+   constants (exported when useful elsewhere) → internal helper functions → exported functions.
+2. **Export domain-enumeration constants** for closed sets. `Suit` is paired with
+   `SUITS: readonly Suit[]`, exported. Tests and other modules import these — never redefine.
+3. **Discriminator naming.** Data types use the natural property (`Tile.suit`, `Tile.honor`).
+   Structural types (`Action`, `Phase`, `EngineError`) use `kind`.
+4. **Test file structure.** Imports → local helpers/fixtures → `fast-check` arbitraries → one
+   `describe` per exported function → property tests grouped at the end.
+5. **One `it()` per failure mode** when a function has 3+ failure cases. Cleaner reports,
+   clearer coverage signal.
+6. **JSDoc only on public API**, one line max. Internals get no JSDoc — names and types
+   document them.
+7. **Factory functions prefixed `make*`** (`makeStandardDeck`, `makeInitialState`, etc.).
+   Avoid `create*` / `build*` / bare nouns.
+8. **Prefer narrowing over `!` or `as`** for nullable values. `if (x !== null) { use(x) }`
+   rather than `use(x!)` or `use(x as T)`.
+
+**Pending:** state-internal arrays (`hand`, `wall`, `exposures`) will likely be
+`readonly Tile[]`; factory outputs (`makeStandardDeck()`) remain mutable. Final decision
+deferred until the first state-shape PR.
+
 ## Working with AI agents (Claude Code)
 
 This project uses Claude Code as the primary coding agent. Two rules exist to compensate for
