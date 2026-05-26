@@ -23,7 +23,8 @@ web UI). Server-authoritative; deterministic engine; ship our own starter winnin
 ## Package map
 
 - `packages/engine` — pure game logic. No I/O, no networking, no global randomness. Must be
-  fully simulatable from tests with a seed.
+  fully simulatable from tests with a seed. Rules spec: [`docs/rules.md`](docs/rules.md).
+  Implementation patterns: [`docs/engine-architecture.md`](docs/engine-architecture.md).
 - `packages/shared` — types shared between engine, server, and web.
 - `apps/server` — *stub*. Will host the authoritative Colyseus server.
 - `apps/web` — *stub*. Will host the React + Vite client.
