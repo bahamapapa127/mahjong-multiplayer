@@ -1,21 +1,20 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
+  DRAGON_COLORS,
   type DragonColor,
   makeStandardDeck,
   parseTile,
+  SUITED_VALUES,
+  SUITS,
   type Suit,
   type SuitedValue,
   serializeTile,
   type Tile,
   tilesEqual,
+  WINDS,
   type Wind,
 } from "./tile.js";
-
-const SUITS: readonly Suit[] = ["crak", "bam", "dot"];
-const WINDS: readonly Wind[] = ["N", "E", "S", "W"];
-const DRAGON_COLORS: readonly DragonColor[] = ["red", "green", "white"];
-const SUITED_VALUES: readonly SuitedValue[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 function countTiles(deck: Tile[], predicate: (t: Tile) => boolean): number {
   return deck.filter(predicate).length;
@@ -192,7 +191,9 @@ describe("parseTile", () => {
     for (const tile of makeStandardDeck()) {
       const parsed = parseTile(serializeTile(tile));
       expect(parsed).not.toBeNull();
-      expect(tilesEqual(parsed as Tile, tile)).toBe(true);
+      if (parsed !== null) {
+        expect(tilesEqual(parsed, tile)).toBe(true);
+      }
     }
   });
 

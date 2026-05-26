@@ -10,6 +10,13 @@ export type Tile =
   | { honor: "flower" }
   | { honor: "joker" };
 
+export const SUITS: readonly Suit[] = ["crak", "bam", "dot"];
+export const WINDS: readonly Wind[] = ["N", "E", "S", "W"];
+export const DRAGON_COLORS: readonly DragonColor[] = ["red", "green", "white"];
+export const SUITED_VALUES: readonly SuitedValue[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+const SUITED_VALUE_RE = /^[1-9]$/;
+
 export function tilesEqual(a: Tile, b: Tile): boolean {
   if ("suit" in a) {
     return "suit" in b && a.suit === b.suit && a.value === b.value;
@@ -48,8 +55,6 @@ export function serializeTile(t: Tile): string {
   return "J";
 }
 
-const SUITED_VALUE_RE = /^[1-9]$/;
-
 export function parseTile(s: string): Tile | null {
   if (s === "F") return { honor: "flower" };
   if (s === "J") return { honor: "joker" };
@@ -80,11 +85,6 @@ export function parseTile(s: string): Tile | null {
 
   return null;
 }
-
-const SUITS: readonly Suit[] = ["crak", "bam", "dot"];
-const WINDS: readonly Wind[] = ["N", "E", "S", "W"];
-const DRAGON_COLORS: readonly DragonColor[] = ["red", "green", "white"];
-const SUITED_VALUES: readonly SuitedValue[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export function makeStandardDeck(): Tile[] {
   const deck: Tile[] = [];
