@@ -242,8 +242,8 @@ All errors are **serializable data**. They cross the network to the client as JS
 
 ```ts
 // packages/engine/src/rng.ts (sketch)
-export function seededRng(seed: string): () => number;   // uniform [0, 1)
-export function shuffle<T>(items: T[], rng: () => number): T[];
+export function makeSeededRng(seed: string): () => number;   // uniform [0, 1)
+export function shuffle<T>(items: readonly T[], rng: () => number): T[];
 ```
 
 A small deterministic PRNG (mulberry32 or splitmix32; cheap, ~10 lines). The seed is a string in `GameState.seed`, set by `createInitialState` from session info.

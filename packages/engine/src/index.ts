@@ -1,3 +1,4 @@
+export { makeSeededRng, shuffle } from "./rng.js";
 export type { DragonColor, Suit, SuitedValue, Tile, Wind } from "./tile.js";
 export {
   DRAGON_COLORS,
