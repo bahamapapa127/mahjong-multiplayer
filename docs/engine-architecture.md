@@ -252,6 +252,8 @@ Randomness shows up in only two places:
 1. The initial wall shuffle.
 2. East selection at first-hand init.
 
+The *order* of these consumptions during `makeInitialState` is part of the contract: shuffle first (consumes N draws inside `shuffle`), then — only when `opts.east` is omitted — one additional draw selects East. The dealing order that follows (player 0 → 1 → 2 → 3, then one extra tile to East) is also fixed. Reordering any of this invalidates every previously recorded seed.
+
 After init, the engine is fully deterministic on the action sequence.
 
 ---
@@ -278,6 +280,8 @@ Three uses:
 ---
 
 ## Card schema
+
+**Implementation status.** The `Card` type currently exported from `packages/engine` is a minimal placeholder containing only `id`, `name`, and `version` ([card.ts](../packages/engine/src/card.ts)). The full schema below — `hands`, `bindings`, `groups`, `TileExpr` — is the target shape, deferred until the first card-authoring work. Until then, treat `GameState.card` as opaque metadata; only the three placeholder fields are safe to read.
 
 Expanded from [`rules.md` §9](rules.md#9-the-card-data-shape).
 
