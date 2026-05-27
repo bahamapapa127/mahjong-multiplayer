@@ -7,7 +7,7 @@ This project is a single-developer + AI-assistant collaboration. The cadence for
 1. **Draft.** Claude proposes the next issue body in chat — one issue at a time, not batched.
 2. **Approve.** Developer reads, redirects if needed, says "file it."
 3. **File.** Claude creates the issue via `gh issue create` using the template at [`.github/ISSUE_TEMPLATE/engine-task.md`](../.github/ISSUE_TEMPLATE/engine-task.md).
-4. **Implement.** Developer says "implement issue #N" (or equivalent). Claude checks out a fresh branch off `main`, implements against the issue's acceptance criteria, runs `pnpm check` locally, opens a PR with `Closes #N` in the body.
+4. **Implement.** Developer says "implement issue #N" (or equivalent). Claude checks out a fresh branch off `main`, implements against the issue's acceptance criteria, runs `pnpm check` locally, opens a PR with `Closes #N` in the body. The PR body's test plan lists only items verified locally before push (`pnpm check` passed, specific behaviors observed). Post-creation outcomes — "CI green", "auto-merge fires", "branch deleted" — belong in Notes, not the test plan.
 5. **Review.** Developer reviews the PR (browser, mobile, or `gh pr view`), merges or comments.
 6. **Iterate.** On merge, the cycle repeats with the next issue.
 
