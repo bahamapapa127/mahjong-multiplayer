@@ -29,6 +29,9 @@ export function makeInitialState(opts: InitOptions): GameState {
   const wall = shuffle(makeStandardDeck(), rng);
   const east = opts.east ?? pickEast(rng);
 
+  // Deal order is part of the deterministic contract: 13 to each player in
+  // PlayerId order (0, 1, 2, 3), then 1 extra to East. Changing this changes
+  // every recorded seed's resulting hands.
   const hands: [Tile[], Tile[], Tile[], Tile[]] = [
     wall.splice(0, 13),
     wall.splice(0, 13),
