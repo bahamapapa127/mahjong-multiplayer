@@ -97,9 +97,9 @@ How engine and shared code is shaped. Keep these in mind when adding or modifyin
 8. **Prefer narrowing over `!` or `as`** for nullable values. `if (x !== null) { use(x) }`
    rather than `use(x!)` or `use(x as T)`.
 
-**Pending:** state-internal arrays (`hand`, `wall`, `exposures`) will likely be
-`readonly Tile[]`; factory outputs (`makeStandardDeck()`) remain mutable. Final decision
-deferred until the first state-shape PR.
+State-internal arrays (`hand`, `wall`, `discards`, `exposures`) are `readonly Tile[]` /
+`readonly Exposure[]`. Factory outputs (`makeStandardDeck()`) remain mutable so callers can
+shuffle them. Settled in the state-types PR.
 
 ## Working with AI agents (Claude Code)
 
