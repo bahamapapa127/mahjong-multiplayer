@@ -27,7 +27,7 @@ A small surface. Everything else is internal.
 // packages/engine/src/index.ts (sketch)
 export type { GameState, Action, EngineError, RuleConfig, Card, Hand };
 
-export function createInitialState(opts: InitOptions): GameState;
+export function makeInitialState(opts: InitOptions): GameState;
 export function reduce(state: GameState, action: Action): Result<GameState, EngineError>;
 export function replay(initial: GameState, actions: Action[]): Result<GameState, EngineError>;
 export function validateCard(card: Card): Result<void, CardValidationError[]>;
@@ -246,7 +246,7 @@ export function makeSeededRng(seed: string): () => number;   // uniform [0, 1)
 export function shuffle<T>(items: readonly T[], rng: () => number): T[];
 ```
 
-A small deterministic PRNG (mulberry32 or splitmix32; cheap, ~10 lines). The seed is a string in `GameState.seed`, set by `createInitialState` from session info.
+A small deterministic PRNG (mulberry32 or splitmix32; cheap, ~10 lines). The seed is a string in `GameState.seed`, set by `makeInitialState` from session info.
 
 Randomness shows up in only two places:
 1. The initial wall shuffle.
@@ -387,7 +387,7 @@ Not prescribing exact filenames; describing rough shape so an implementer knows 
 | Concern | What lives there |
 |---------|------------------|
 | Types | Central type definitions for `GameState`, `Action`, `Card`, etc. |
-| State | `createInitialState`, immutable update helpers |
+| State | `makeInitialState`, immutable update helpers |
 | Reducer | Top-level `reduce` plus per-action handlers |
 | Phase logic | Charleston, turn-flow, claim resolution |
 | Card | Schema types, validator, authoring helpers, constraint solver |

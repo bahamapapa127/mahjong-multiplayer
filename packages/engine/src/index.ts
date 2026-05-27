@@ -6,6 +6,7 @@ export type {
 export type { Card } from "./card.js";
 export type { DeadHandDetectionMode, RuleConfig } from "./config.js";
 export type { EngineError } from "./errors.js";
+export { type InitOptions, makeInitialState } from "./init.js";
 export type {
   CharlestonCourtesyCount,
   CharlestonPassIndex,
