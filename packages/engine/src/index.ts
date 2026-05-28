@@ -16,6 +16,7 @@ export type {
   Phase,
 } from "./phase.js";
 export { PLAYER_IDS, type PlayerId } from "./player.js";
+export { reduce } from "./reduce.js";
 export type { Result } from "./result.js";
 export { makeSeededRng, shuffle } from "./rng.js";
 export type {
