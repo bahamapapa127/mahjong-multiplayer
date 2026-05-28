@@ -1,45 +1,17 @@
 import { describe, expect, it } from "vitest";
 import type { Action } from "./action.js";
-import type { Card } from "./card.js";
-import type { RuleConfig } from "./config.js";
-import { type InitOptions, makeInitialState } from "./init.js";
+import { makeInitialState } from "./init.js";
 import { reduce } from "./reduce.js";
-
-const defaultConfig: RuleConfig = {
-  charleston: {
-    allowBlindPasses: true,
-    courtesyPass: true,
-    allowJokersInCharleston: false,
-  },
-  jokers: { allowDiscardingJokers: true },
-  play: { deadHandDetection: "manual" },
-};
-
-const placeholderCard: Card = {
-  id: "test-card",
-  name: "Test",
-  version: "0.0.0",
-};
-
-const baseOpts: InitOptions = {
-  config: defaultConfig,
-  seed: "reduce-test",
-  card: placeholderCard,
-  east: 0,
-};
-
-const flower = { honor: "flower" } as const;
+import { flower, makeOpts, unwrapErr, unwrapOk } from "./test-fixtures.js";
 
 describe("reduce dispatch", () => {
-  const initialState = makeInitialState(baseOpts);
+  const initialState = makeInitialState(makeOpts({ seed: "reduce-test", east: 0 }));
 
   function assertNotImplemented(action: Action, kind: Action["kind"]) {
-    const result = reduce(initialState, action);
-    expect(result.ok).toBe(false);
-    if (result.ok) throw new Error("expected error");
-    expect(result.error.kind).toBe("unknown");
-    if (result.error.kind !== "unknown") return;
-    expect(result.error.message).toContain(kind);
+    const error = unwrapErr(reduce(initialState, action));
+    expect(error.kind).toBe("unknown");
+    if (error.kind !== "unknown") return;
+    expect(error.message).toContain(kind);
   }
 
   it("stubs charlestonHalt", () => {
@@ -103,14 +75,9 @@ describe("reduce dispatch", () => {
       (t) => !("honor" in t) || t.honor !== "joker",
     );
     const tiles = nonJokers.slice(0, 3);
-    const result = reduce(initialState, {
-      kind: "charlestonPass",
-      player: 0,
-      tiles,
-      blind: false,
-    });
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect(result.value.players[0].hand).toHaveLength(initialState.players[0].hand.length - 3);
+    const value = unwrapOk(
+      reduce(initialState, { kind: "charlestonPass", player: 0, tiles, blind: false }),
+    );
+    expect(value.players[0].hand).toHaveLength(initialState.players[0].hand.length - 3);
   });
 });

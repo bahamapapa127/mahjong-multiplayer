@@ -1,39 +1,22 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import type { Action } from "./action.js";
-import type { Card } from "./card.js";
 import type { RuleConfig } from "./config.js";
-import { type InitOptions, makeInitialState } from "./init.js";
+import { makeInitialState } from "./init.js";
 import { PLAYER_IDS, type PlayerId } from "./player.js";
 import { reduce } from "./reduce.js";
 import type { GameState, PlayerStateTuple } from "./state.js";
+import {
+  defaultConfig,
+  flower,
+  joker,
+  makeOpts,
+  multisetEqual,
+  unwrapOk,
+} from "./test-fixtures.js";
 import { makeStandardDeck, serializeTile, type Tile } from "./tile.js";
 
-const defaultConfig: RuleConfig = {
-  charleston: {
-    allowBlindPasses: true,
-    courtesyPass: true,
-    allowJokersInCharleston: false,
-  },
-  jokers: { allowDiscardingJokers: true },
-  play: { deadHandDetection: "manual" },
-};
-
-const placeholderCard: Card = {
-  id: "test-card",
-  name: "Test",
-  version: "0.0.0",
-};
-
-const baseOpts: InitOptions = {
-  config: defaultConfig,
-  seed: "charleston-test",
-  card: placeholderCard,
-  east: 0,
-};
-
-const joker: Tile = { honor: "joker" };
-const flower: Tile = { honor: "flower" };
+const baseOpts = makeOpts({ seed: "charleston-test", east: 0 });
 
 function overrideHand(state: GameState, id: PlayerId, hand: readonly Tile[]): GameState {
   const players: PlayerStateTuple = [
@@ -49,21 +32,8 @@ function pass(player: PlayerId, tiles: readonly Tile[], blind = false): Action {
   return { kind: "charlestonPass", player, tiles, blind };
 }
 
-function unwrap(state: GameState, action: Action): GameState {
-  const result = reduce(state, action);
-  if (!result.ok) {
-    throw new Error(
-      `reduce failed: ${JSON.stringify(result.error)} for action ${JSON.stringify(action)}`,
-    );
-  }
-  return result.value;
-}
-
-function multisetEqual(a: readonly Tile[], b: readonly Tile[]): boolean {
-  if (a.length !== b.length) return false;
-  const sortedA = [...a].map(serializeTile).sort();
-  const sortedB = [...b].map(serializeTile).sort();
-  return sortedA.every((t, i) => t === sortedB[i]);
+function step(state: GameState, action: Action): GameState {
+  return unwrapOk(reduce(state, action));
 }
 
 function allTiles(state: GameState): Tile[] {
@@ -90,7 +60,7 @@ function applyPass(state: GameState): GameState {
       ? next.players[id].hand.filter((t) => !("honor" in t) || t.honor !== "joker")
       : next.players[id].hand;
     const tiles = eligible.slice(0, 3);
-    next = unwrap(next, pass(id, tiles));
+    next = step(next, pass(id, tiles));
   }
   return next;
 }
@@ -114,7 +84,7 @@ describe("reduceCharlestonPass validation", () => {
   it("rejects already-submitted player", () => {
     let state = makeInitialState(baseOpts);
     const tiles = state.players[0].hand.slice(0, 3);
-    state = unwrap(state, pass(0, tiles));
+    state = step(state, pass(0, tiles));
     const result = reduce(state, pass(0, state.players[0].hand.slice(0, 3)));
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -172,7 +142,7 @@ describe("reduceCharlestonPass happy path", () => {
   it("removes 3 tiles from the player's hand and records the pass", () => {
     const initial = makeInitialState(baseOpts);
     const tiles = initial.players[1].hand.slice(0, 3);
-    const next = unwrap(initial, pass(1, tiles));
+    const next = step(initial, pass(1, tiles));
 
     expect(next.players[1].hand).toHaveLength(initial.players[1].hand.length - 3);
     for (const id of PLAYER_IDS) {
@@ -188,7 +158,7 @@ describe("reduceCharlestonPass happy path", () => {
   it("preserves the blind flag", () => {
     const initial = makeInitialState(baseOpts);
     const tiles = initial.players[1].hand.slice(0, 3);
-    const next = unwrap(initial, pass(1, tiles, true));
+    const next = step(initial, pass(1, tiles, true));
     if (next.phase.kind !== "charleston" || next.phase.step.kind !== "collecting") {
       throw new Error("expected collecting phase");
     }
@@ -313,7 +283,7 @@ describe("reduceCharlestonPass mid-pass partial state", () => {
     let state = makeInitialState(baseOpts);
     for (const id of [0, 1, 2] as const) {
       const tiles = state.players[id].hand.slice(0, 3);
-      state = unwrap(state, pass(id, tiles));
+      state = step(state, pass(id, tiles));
       if (state.phase.kind !== "charleston" || state.phase.step.kind !== "collecting") {
         throw new Error("expected collecting");
       }

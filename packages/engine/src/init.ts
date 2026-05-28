@@ -24,6 +24,7 @@ function makePlayer(id: PlayerId, hand: readonly Tile[]): PlayerState {
   return { id, hand, exposures: [], isDead: false };
 }
 
+/** Build a fresh `GameState` for the start of a hand: shuffled wall, East chosen or random, tiles dealt, Charleston entered. */
 export function makeInitialState(opts: InitOptions): GameState {
   const rng = makeSeededRng(opts.seed);
   const wall = shuffle(makeStandardDeck(), rng);
