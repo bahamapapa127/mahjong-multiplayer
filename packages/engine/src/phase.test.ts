@@ -21,9 +21,12 @@ describe("CharlestonStep", () => {
   });
 
   it("narrows on kind='courtesy'", () => {
-    const step: CharlestonStep = { kind: "courtesy", offers: { 0: 1 } };
+    const step: CharlestonStep = {
+      kind: "courtesy",
+      offers: { 0: { tiles: [{ honor: "flower" }] } },
+    };
     if (step.kind === "courtesy") {
-      expect(step.offers[0]).toBe(1);
+      expect(step.offers[0]?.tiles).toHaveLength(1);
       return;
     }
     throw new Error("expected courtesy");

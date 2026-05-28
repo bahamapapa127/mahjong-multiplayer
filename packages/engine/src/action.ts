@@ -27,7 +27,7 @@ export type Action =
   | {
       readonly kind: "courtesyPassDeclare";
       readonly player: PlayerId;
-      readonly count: 0 | 1 | 2 | 3;
+      readonly tiles: readonly Tile[];
     }
   | {
       readonly kind: "jokerSwap";

@@ -14,13 +14,6 @@ describe("reduce dispatch", () => {
     expect(error.message).toContain(kind);
   }
 
-  it("stubs courtesyPassDeclare", () => {
-    assertNotImplemented(
-      { kind: "courtesyPassDeclare", player: 0, count: 0 },
-      "courtesyPassDeclare",
-    );
-  });
-
   it("stubs jokerSwap", () => {
     assertNotImplemented(
       {

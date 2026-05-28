@@ -75,10 +75,10 @@ describe("Action", () => {
     const action: Action = {
       kind: "courtesyPassDeclare",
       player: 3,
-      count: 2,
+      tiles: [flower, flower],
     };
     if (action.kind === "courtesyPassDeclare") {
-      expect(action.count).toBe(2);
+      expect(action.tiles).toHaveLength(2);
       return;
     }
     throw new Error("expected courtesyPassDeclare");

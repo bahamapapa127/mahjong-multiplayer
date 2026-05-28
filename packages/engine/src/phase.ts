@@ -3,11 +3,13 @@ import type { Tile } from "./tile.js";
 
 export type CharlestonPassIndex = 0 | 1 | 2 | 3 | 4 | 5;
 
-export type CharlestonCourtesyCount = 0 | 1 | 2 | 3;
-
 export type CharlestonReceived = Partial<
   Record<PlayerId, { readonly tiles: readonly Tile[]; readonly blind: boolean }>
 >;
+
+export type CharlestonCourtesyOffer = { readonly tiles: readonly Tile[] };
+
+export type CharlestonOffers = Partial<Record<PlayerId, CharlestonCourtesyOffer>>;
 
 export type CharlestonStep =
   | {
@@ -18,7 +20,7 @@ export type CharlestonStep =
   | { readonly kind: "stopWindow" }
   | {
       readonly kind: "courtesy";
-      readonly offers: Partial<Record<PlayerId, CharlestonCourtesyCount>>;
+      readonly offers: CharlestonOffers;
     };
 
 export type GameOutcome =

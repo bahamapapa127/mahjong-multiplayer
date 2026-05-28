@@ -92,7 +92,7 @@ type CharlestonStep =
       received: Partial<Record<PlayerId, { tiles: Tile[]; blind: boolean }>>;
     }
   | { kind: 'stopWindow' }              // after pass index 2, before pass index 3
-  | { kind: 'courtesy'; offers: Partial<Record<PlayerId, 0|1|2|3>> };
+  | { kind: 'courtesy'; offers: Partial<Record<PlayerId, { tiles: Tile[] }>> };
 
 type GameOutcome =
   | { kind: 'mahjong'; winner: PlayerId; handId: string; claimedFrom: 'wall' | PlayerId }
@@ -132,7 +132,7 @@ If the client needs per-tile identity (for animations of specific tiles moving a
 type Action =
   | { kind: 'charlestonPass'; player: PlayerId; tiles: Tile[]; blind: boolean }
   | { kind: 'charlestonHalt'; player: PlayerId }
-  | { kind: 'courtesyPassDeclare'; player: PlayerId; count: 0|1|2|3 }
+  | { kind: 'courtesyPassDeclare'; player: PlayerId; tiles: Tile[] }
   | { kind: 'jokerSwap'; player: PlayerId; swaps: JokerSwap[] /* non-empty */ }
   | { kind: 'discard'; player: PlayerId; tile: Tile }
   | { kind: 'declareMahjongSelfPick'; player: PlayerId; handId: string }
