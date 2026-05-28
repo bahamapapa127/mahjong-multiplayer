@@ -681,7 +681,7 @@ describe("reduceCourtesyPassDeclare resolution", () => {
     expect(next.phase).toEqual({
       kind: "awaitingTurnAction",
       player: 0,
-      cameFrom: "wall",
+      cameFrom: "initialDeal",
     });
     // player 0's offered tiles now belong to player 2.
     for (const tile of player0Offer) {
@@ -718,7 +718,7 @@ describe("reduceCourtesyPassDeclare resolution", () => {
     expect(next.phase).toEqual({
       kind: "awaitingTurnAction",
       player: 0,
-      cameFrom: "wall",
+      cameFrom: "initialDeal",
     });
   });
 
@@ -741,7 +741,7 @@ describe("reduceCourtesyPassDeclare resolution", () => {
     expect(next.phase).toEqual({
       kind: "awaitingTurnAction",
       player: 2,
-      cameFrom: "wall",
+      cameFrom: "initialDeal",
     });
   });
 
@@ -775,7 +775,7 @@ describe("courtesyPass config toggle", () => {
     expect(state.phase).toEqual({
       kind: "awaitingTurnAction",
       player: 0,
-      cameFrom: "wall",
+      cameFrom: "initialDeal",
     });
   });
 
@@ -785,7 +785,7 @@ describe("courtesyPass config toggle", () => {
     expect(state.phase).toEqual({
       kind: "awaitingTurnAction",
       player: 0,
-      cameFrom: "wall",
+      cameFrom: "initialDeal",
     });
   });
 });
@@ -803,7 +803,7 @@ describe("full pre-game (charleston + courtesy)", () => {
     expect(state.phase).toEqual({
       kind: "awaitingTurnAction",
       player: 0,
-      cameFrom: "wall",
+      cameFrom: "initialDeal",
     });
     expect(state.players[0].hand).toHaveLength(14);
     expect(state.players[1].hand).toHaveLength(13);

@@ -37,7 +37,7 @@ export type Phase =
   | {
       readonly kind: "awaitingTurnAction";
       readonly player: PlayerId;
-      readonly cameFrom: "wall" | "claim";
+      readonly cameFrom: "initialDeal" | "wall" | "claim";
     }
   | {
       readonly kind: "awaitingClaimWindow";

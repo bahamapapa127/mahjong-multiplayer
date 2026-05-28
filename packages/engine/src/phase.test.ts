@@ -82,6 +82,19 @@ describe("Phase", () => {
     throw new Error("expected awaitingTurnAction");
   });
 
+  it("accepts cameFrom='initialDeal' for the first transition out of Charleston", () => {
+    const phase: Phase = {
+      kind: "awaitingTurnAction",
+      player: 0,
+      cameFrom: "initialDeal",
+    };
+    if (phase.kind === "awaitingTurnAction") {
+      expect(phase.cameFrom).toBe("initialDeal");
+      return;
+    }
+    throw new Error("expected awaitingTurnAction");
+  });
+
   it("narrows on kind='awaitingClaimWindow'", () => {
     const phase: Phase = {
       kind: "awaitingClaimWindow",

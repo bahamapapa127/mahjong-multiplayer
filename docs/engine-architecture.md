@@ -82,7 +82,7 @@ type Exposure = {
 
 type Phase =
   | { kind: 'charleston'; step: CharlestonStep }
-  | { kind: 'awaitingTurnAction'; player: PlayerId; cameFrom: 'wall' | 'claim' }
+  | { kind: 'awaitingTurnAction'; player: PlayerId; cameFrom: 'initialDeal' | 'wall' | 'claim' }
   | { kind: 'awaitingClaimWindow'; discarder: PlayerId; tile: Tile }
   | { kind: 'terminal'; outcome: GameOutcome };
 
@@ -196,7 +196,7 @@ Eight actions. Each represents a real player decision. Procedural transitions (d
 
 Three places the reducer makes implicit transitions:
 
-1. **Auto-draw from wall.** When transitioning into `awaitingTurnAction` with `cameFrom: 'wall'`, the reducer pops the next wall tile into the player's hand. No explicit `draw` action.
+1. **Auto-draw from wall.** When transitioning into `awaitingTurnAction` with `cameFrom: 'wall'` (after a claim window closes with no claim), the reducer pops the next wall tile into the player's hand. No explicit `draw` action. `cameFrom: 'claim'` and `cameFrom: 'initialDeal'` do **not** auto-draw — in both cases the player already holds 14 tiles (the claimed discard, or the 14th tile from the initial deal, respectively).
 2. **Wall exhaustion check.** Each transition out of `awaitingClaimWindow` checks if the wall is empty after the implicit auto-draw would happen. If empty and no claim was made, phase → `terminal: wallGame`.
 3. **Charleston pass completion.** When all 4 players have submitted tiles for a given pass, the reducer applies all 4 swaps simultaneously and transitions to the next step (next pass, stop window, courtesy, or out of Charleston).
 

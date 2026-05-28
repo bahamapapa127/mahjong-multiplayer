@@ -60,10 +60,12 @@ function nextStep(passIndex: 0 | 1 | 2 | 3 | 4): CharlestonStep {
 }
 
 function enterFirstTurn(state: GameState): Phase {
-  // rules.md §2 / §4: East already has 14 tiles from the deal, so no auto-draw
-  // fires on this transition. Auto-draw on cameFrom: "wall" lands with the
-  // discard / claim-window handlers in a follow-up issue (see #36 out-of-scope).
-  return { kind: "awaitingTurnAction", player: state.east, cameFrom: "wall" };
+  // rules.md §2: East already holds 14 tiles from the initial deal — no draw
+  // fires on this transition. `cameFrom: "initialDeal"` distinguishes this
+  // first entry from later wall-draw / claim transitions, so the future
+  // discard / claim-window handler can auto-draw on "wall" without auto-drawing
+  // East into a 15-tile hand here.
+  return { kind: "awaitingTurnAction", player: state.east, cameFrom: "initialDeal" };
 }
 
 function enterPostCharleston(state: GameState): Phase {
