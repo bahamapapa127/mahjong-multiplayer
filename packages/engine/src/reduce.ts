@@ -1,5 +1,5 @@
 import type { Action } from "./action.js";
-import { reduceCharlestonPass } from "./charleston.js";
+import { reduceCharlestonHalt, reduceCharlestonPass } from "./charleston.js";
 import type { EngineError } from "./errors.js";
 import type { Result } from "./result.js";
 import type { GameState } from "./state.js";
@@ -16,7 +16,7 @@ function dispatch(state: GameState, action: Action): Result<GameState, EngineErr
     case "charlestonPass":
       return reduceCharlestonPass(state, action);
     case "charlestonHalt":
-      return notImplemented("charlestonHalt");
+      return reduceCharlestonHalt(state, action);
     case "courtesyPassDeclare":
       return notImplemented("courtesyPassDeclare");
     case "jokerSwap":

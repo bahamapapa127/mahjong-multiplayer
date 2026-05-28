@@ -83,7 +83,10 @@ export function reduceCharlestonPass(
   state: GameState,
   action: Extract<Action, { kind: "charlestonPass" }>,
 ): Result<GameState, EngineError> {
-  if (state.phase.kind !== "charleston" || state.phase.step.kind !== "collecting") {
+  if (
+    state.phase.kind !== "charleston" ||
+    (state.phase.step.kind !== "collecting" && state.phase.step.kind !== "stopWindow")
+  ) {
     return {
       ok: false,
       error: {
@@ -93,7 +96,12 @@ export function reduceCharlestonPass(
       },
     };
   }
-  const step = state.phase.step;
+  // rules.md §3: the stop window has no explicit "continue" action — submitting
+  // pass-3 tiles is the player's consent to the second Charleston.
+  const step: Extract<CharlestonStep, { kind: "collecting" }> =
+    state.phase.step.kind === "stopWindow"
+      ? { kind: "collecting", passIndex: 3, received: {} }
+      : state.phase.step;
   if (step.received[action.player] !== undefined) {
     return {
       ok: false,
@@ -174,6 +182,29 @@ export function reduceCharlestonPass(
       ...state,
       players: playersAfterSwap,
       phase: { kind: "charleston", step: nextStep(step.passIndex) },
+    },
+  };
+}
+
+export function reduceCharlestonHalt(
+  state: GameState,
+  _action: Extract<Action, { kind: "charlestonHalt" }>,
+): Result<GameState, EngineError> {
+  if (state.phase.kind !== "charleston" || state.phase.step.kind !== "stopWindow") {
+    return {
+      ok: false,
+      error: {
+        kind: "wrongPhase",
+        expected: ["charleston"],
+        actual: state.phase.kind,
+      },
+    };
+  }
+  return {
+    ok: true,
+    value: {
+      ...state,
+      phase: { kind: "charleston", step: { kind: "courtesy", offers: {} } },
     },
   };
 }

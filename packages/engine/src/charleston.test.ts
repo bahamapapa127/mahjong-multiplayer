@@ -294,9 +294,9 @@ describe("reduceCharlestonPass mid-pass partial state", () => {
 });
 
 describe("reduceCharlestonPass second-Charleston auto-transitions", () => {
-  // The reducer can't drive a game to passIndex 3+ in this PR (charlestonHalt
-  // doesn't yet exit the stopWindow). These tests inject the state directly,
-  // exercising nextStep's branches for the second-Charleston passes.
+  // These tests inject the state directly, exercising nextStep's branches for
+  // the second-Charleston passes in isolation. The end-to-end path through the
+  // real reducer is covered by the "full Charleston path" tests below.
 
   function withCollectingPass(state: GameState, passIndex: 3 | 4 | 5): GameState {
     return {
@@ -335,5 +335,175 @@ describe("reduceCharlestonPass second-Charleston auto-transitions", () => {
       kind: "charleston",
       step: { kind: "courtesy", offers: {} },
     });
+  });
+});
+
+function halt(player: PlayerId): Action {
+  return { kind: "charlestonHalt", player };
+}
+
+function toStopWindow(opts: typeof baseOpts = baseOpts): GameState {
+  let state = makeInitialState(opts);
+  state = applyPass(state);
+  state = applyPass(state);
+  state = applyPass(state);
+  return state;
+}
+
+describe("reduceCharlestonHalt", () => {
+  for (const id of PLAYER_IDS) {
+    it(`accepts halt from player ${id} at stopWindow and advances to courtesy`, () => {
+      const state = toStopWindow();
+      const next = step(state, halt(id));
+      expect(next.phase).toEqual({
+        kind: "charleston",
+        step: { kind: "courtesy", offers: {} },
+      });
+    });
+  }
+
+  it("leaves hands, wall, and discards untouched", () => {
+    const state = toStopWindow();
+    const next = step(state, halt(0));
+    expect(next.wall).toEqual(state.wall);
+    expect(next.discards).toEqual(state.discards);
+    for (const id of PLAYER_IDS) {
+      expect(next.players[id]).toEqual(state.players[id]);
+    }
+  });
+
+  it("rejects halt during collecting (passIndex 0)", () => {
+    const state = makeInitialState(baseOpts);
+    const result = reduce(state, halt(0));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.kind).toBe("wrongPhase");
+  });
+
+  it("rejects halt during collecting (passIndex 3)", () => {
+    let state = toStopWindow();
+    state = step(state, pass(0, state.players[0].hand.slice(0, 3)));
+    const result = reduce(state, halt(0));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.kind).toBe("wrongPhase");
+  });
+
+  it("rejects halt during courtesy", () => {
+    const state = toStopWindow();
+    const courtesy = step(state, halt(0));
+    const result = reduce(courtesy, halt(0));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.kind).toBe("wrongPhase");
+  });
+});
+
+describe("reduceCharlestonPass stopWindow exit", () => {
+  it("accepts a pass at stopWindow and enters collecting passIndex 3", () => {
+    const state = toStopWindow();
+    const tiles = state.players[0].hand.slice(0, 3);
+    const next = step(state, pass(0, tiles));
+    if (next.phase.kind !== "charleston" || next.phase.step.kind !== "collecting") {
+      throw new Error("expected collecting");
+    }
+    expect(next.phase.step.passIndex).toBe(3);
+    expect(next.phase.step.received[0]).toEqual({ tiles, blind: false });
+    expect(next.players[0].hand).toHaveLength(state.players[0].hand.length - 3);
+  });
+
+  it("rejects a joker pass at stopWindow when config forbids it", () => {
+    const initial = toStopWindow();
+    const state = overrideHand(initial, 0, [
+      joker,
+      flower,
+      flower,
+      ...initial.players[0].hand.slice(3),
+    ]);
+    const result = reduce(state, pass(0, [joker, flower, flower]));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.kind).toBe("invalidCharlestonPass");
+    if (result.error.kind !== "invalidCharlestonPass") return;
+    expect(result.error.reason).toBe("jokers may not be passed");
+  });
+});
+
+describe("reduceCharlestonPass full Charleston (passes 0-5)", () => {
+  function fullCharleston(state: GameState): GameState {
+    let next = state;
+    for (let i = 0; i < 6; i++) next = applyPass(next);
+    return next;
+  }
+
+  it("reaches courtesy step after 24 passes", () => {
+    const final = fullCharleston(makeInitialState(baseOpts));
+    expect(final.phase).toEqual({
+      kind: "charleston",
+      step: { kind: "courtesy", offers: {} },
+    });
+  });
+
+  it("preserves hand sizes (14 East, 13 others) after each completed pass", () => {
+    let state = makeInitialState(baseOpts);
+    for (let i = 0; i < 6; i++) {
+      state = applyPass(state);
+      expect(state.players[0].hand).toHaveLength(14);
+      expect(state.players[1].hand).toHaveLength(13);
+      expect(state.players[2].hand).toHaveLength(13);
+      expect(state.players[3].hand).toHaveLength(13);
+    }
+  });
+
+  it("sends pass 3 tiles to recipient at offset +1 (Left)", () => {
+    let state = toStopWindow();
+    const tiles = state.players[0].hand.slice(0, 3);
+    state = applyPass(state);
+    const player1Hand = state.players[1].hand;
+    for (const tile of tiles) {
+      expect(player1Hand.some((t) => serializeTile(t) === serializeTile(tile))).toBe(true);
+    }
+  });
+
+  it("sends pass 4 tiles to recipient at offset +2 (Across)", () => {
+    let state = toStopWindow();
+    state = applyPass(state); // pass 3 done
+    const tiles = state.players[0].hand.slice(0, 3);
+    state = applyPass(state); // pass 4 done
+    const player2Hand = state.players[2].hand;
+    for (const tile of tiles) {
+      expect(player2Hand.some((t) => serializeTile(t) === serializeTile(tile))).toBe(true);
+    }
+  });
+
+  it("sends pass 5 tiles to recipient at offset +3 (Right)", () => {
+    let state = toStopWindow();
+    state = applyPass(state);
+    state = applyPass(state);
+    const tiles = state.players[0].hand.slice(0, 3);
+    state = applyPass(state); // pass 5 done
+    const player3Hand = state.players[3].hand;
+    for (const tile of tiles) {
+      expect(player3Hand.some((t) => serializeTile(t) === serializeTile(tile))).toBe(true);
+    }
+  });
+
+  it("preserves the 152-tile multiset across all 6 passes for any seed", () => {
+    fc.assert(
+      fc.property(seedArb, (seed) => {
+        const deck = makeStandardDeck();
+        let state = makeInitialState({ ...baseOpts, seed });
+        for (let i = 0; i < 6; i++) {
+          state = applyPass(state);
+          expect(multisetEqual(allTiles(state), deck)).toBe(true);
+        }
+      }),
+    );
+  });
+
+  it("is deterministic — same seed + same actions yield equal final state", () => {
+    const a = fullCharleston(makeInitialState(baseOpts));
+    const b = fullCharleston(makeInitialState(baseOpts));
+    expect(a).toEqual(b);
   });
 });
