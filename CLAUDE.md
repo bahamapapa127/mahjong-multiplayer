@@ -96,6 +96,14 @@ How engine and shared code is shaped. Keep these in mind when adding or modifyin
    Avoid `create*` / `build*` / bare nouns.
 8. **Prefer narrowing over `!` or `as`** for nullable values. `if (x !== null) { use(x) }`
    rather than `use(x!)` or `use(x as T)`.
+9. **`/* v8 ignore start/stop */` is allowed for two specific defensive patterns:**
+   (a) branches required to satisfy `noUncheckedIndexedAccess` where the index is mathematically
+   guaranteed by surrounding logic (see `shuffle` in [`packages/engine/src/rng.ts`](packages/engine/src/rng.ts)),
+   and (b) `try/catch` wrappers required by the architecture's throw-and-catch contract before
+   any internal handler throws (see `reduce` in [`packages/engine/src/reduce.ts`](packages/engine/src/reduce.ts)).
+   Each ignore must carry a `--` comment explaining *why* the branch is unreachable, not just
+   *that* coverage is suppressed. Prefer restructuring code to eliminate the ignore over adding
+   new ones.
 
 State-internal arrays (`hand`, `wall`, `discards`, `exposures`) are `readonly Tile[]` /
 `readonly Exposure[]`. Factory outputs (`makeStandardDeck()`) remain mutable so callers can

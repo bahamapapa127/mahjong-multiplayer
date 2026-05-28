@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { EngineError } from "./errors.js";
-
-const flower = { honor: "flower" } as const;
+import { flower } from "./test-fixtures.js";
 
 describe("EngineError", () => {
   it("narrows on kind='wrongPhase'", () => {

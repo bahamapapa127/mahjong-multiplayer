@@ -1,28 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { Card } from "./card.js";
-import type { RuleConfig } from "./config.js";
 import type { Phase } from "./phase.js";
 import { PLAYER_IDS, type PlayerId } from "./player.js";
 import type { Exposure, GameState, PlayerState, PlayerStateTuple } from "./state.js";
+import { defaultConfig, flower, placeholderCard } from "./test-fixtures.js";
 
-const flower = { honor: "flower" } as const;
 const fiveCrak = { suit: "crak", value: 5 } as const;
-
-const defaultConfig: RuleConfig = {
-  charleston: {
-    allowBlindPasses: true,
-    courtesyPass: true,
-    allowJokersInCharleston: false,
-  },
-  jokers: { allowDiscardingJokers: true },
-  play: { deadHandDetection: "manual" },
-};
-
-const placeholderCard: Card = {
-  id: "test-card",
-  name: "Test",
-  version: "0.0.0",
-};
 
 function makePlayer(id: PlayerId): PlayerState {
   return { id, hand: [], exposures: [], isDead: false };

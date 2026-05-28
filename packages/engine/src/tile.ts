@@ -10,13 +10,18 @@ export type Tile =
   | { honor: "flower" }
   | { honor: "joker" };
 
+/** The three Mahjong suits — crak, bam, dot. */
 export const SUITS: readonly Suit[] = ["crak", "bam", "dot"];
+/** The four winds — N, E, S, W. */
 export const WINDS: readonly Wind[] = ["N", "E", "S", "W"];
+/** The three dragons — red, green, white. */
 export const DRAGON_COLORS: readonly DragonColor[] = ["red", "green", "white"];
+/** The nine suited tile values, 1 through 9. */
 export const SUITED_VALUES: readonly SuitedValue[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const SUITED_VALUE_RE = /^[1-9]$/;
 
+/** Structural equality on tiles — two tiles are equal iff their data matches. */
 export function tilesEqual(a: Tile, b: Tile): boolean {
   if ("suit" in a) {
     return "suit" in b && a.suit === b.suit && a.value === b.value;
@@ -39,6 +44,7 @@ export function tilesEqual(a: Tile, b: Tile): boolean {
   return false;
 }
 
+/** Render a tile as its compact string form (round-trippable through `parseTile`). */
 export function serializeTile(t: Tile): string {
   if ("suit" in t) {
     if (t.suit === "crak") return `c${t.value}`;
@@ -55,6 +61,7 @@ export function serializeTile(t: Tile): string {
   return "J";
 }
 
+/** Parse a tile from its compact string form. Returns `null` on invalid input. */
 export function parseTile(s: string): Tile | null {
   if (s === "F") return { honor: "flower" };
   if (s === "J") return { honor: "joker" };
@@ -86,6 +93,7 @@ export function parseTile(s: string): Tile | null {
   return null;
 }
 
+/** Build a fresh 152-tile American Mahjong deck. The result is mutable so callers can shuffle in place. */
 export function makeStandardDeck(): Tile[] {
   const deck: Tile[] = [];
   for (const suit of SUITS) {
