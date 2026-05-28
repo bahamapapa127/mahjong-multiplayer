@@ -8,7 +8,8 @@ export type { DeadHandDetectionMode, RuleConfig } from "./config.js";
 export type { EngineError } from "./errors.js";
 export { type InitOptions, makeInitialState } from "./init.js";
 export type {
-  CharlestonCourtesyCount,
+  CharlestonCourtesyOffer,
+  CharlestonOffers,
   CharlestonPassIndex,
   CharlestonReceived,
   CharlestonStep,
