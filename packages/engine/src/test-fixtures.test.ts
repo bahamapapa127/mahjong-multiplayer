@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Result } from "./result.js";
-import { multisetEqual, unwrapErr, unwrapOk } from "./test-fixtures.js";
-import type { Tile } from "./tile.js";
-
-const flower: Tile = { honor: "flower" };
-const joker: Tile = { honor: "joker" };
+import { flower, joker, multisetEqual, unwrapErr, unwrapOk } from "./test-fixtures.js";
 
 describe("unwrapOk", () => {
   it("returns the value when the result is ok", () => {

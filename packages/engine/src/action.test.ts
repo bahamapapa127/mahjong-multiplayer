@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Action, ClaimIntent, JokerSwap } from "./action.js";
+import { flower } from "./test-fixtures.js";
 
-const flower = { honor: "flower" } as const;
 const fiveCrak = { suit: "crak", value: 5 } as const;
 
 describe("ClaimIntent", () => {
