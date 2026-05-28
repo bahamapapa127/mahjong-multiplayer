@@ -54,12 +54,28 @@ git checkout -b <type>/<short-desc>
 # edit, commit (commit-msg hook enforces conventional commits)
 git push -u origin <branch>
 gh pr create --base main --head <branch> --title "..." --body "..."
-gh pr merge <N> --auto --squash --delete-branch
+gh pr merge <N> --auto --squash --delete-branch   # only for the tiers below
 ```
 
 GitHub auto-merges when CI is green and deletes the branch on merge. **PR test plan checklist
 should only contain locally-verified items** — never list post-creation outcomes like "CI
 green" or "auto-merge fires"; those belong in Notes.
+
+### Auto-merge policy
+
+When Claude opens a PR, it sets the auto-merge flag based on the conventional-commit prefix
+of the PR's primary commit:
+
+| Prefix                                                    | Default                                |
+|-----------------------------------------------------------|----------------------------------------|
+| `docs:`, `chore:`, `build:`, `ci:`, `style:`              | Auto-merge **enabled** on PR creation. |
+| `feat:`, `fix:`, `refactor:`, `perf:`, `test:`, `revert:` | Auto-merge **not** enabled — waits for human review before merge. |
+
+For the "not enabled" tier, Claude's end-of-turn note should call out that the PR is open
+and unmerged so the human knows to review. The human can flip the default per PR at any
+time: "auto-merge this one" enables it; "hold this one" leaves it off.
+
+Renovate's PRs are governed by [`renovate.json`](renovate.json), not by this policy.
 
 ## Conventions
 
