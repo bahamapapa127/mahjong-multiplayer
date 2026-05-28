@@ -135,6 +135,8 @@ export function reduceCharlestonPass(
       },
     };
   }
+  // Joker policy is checked before tileNotInHand: it's a flat rule violation
+  // (cheap O(n) scan), while tileNotInHand signals client/server state divergence.
   if (!state.config.charleston.allowJokersInCharleston) {
     for (const tile of action.tiles) {
       if (isJoker(tile)) {
@@ -284,6 +286,8 @@ export function reduceCourtesyPassDeclare(
       },
     };
   }
+  // Joker policy is checked before tileNotInHand: it's a flat rule violation
+  // (cheap O(n) scan), while tileNotInHand signals client/server state divergence.
   if (!state.config.charleston.allowJokersInCharleston) {
     for (const tile of action.tiles) {
       if (isJoker(tile)) {

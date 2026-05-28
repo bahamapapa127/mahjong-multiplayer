@@ -71,6 +71,12 @@ function applyPass(state: GameState): GameState {
   return next;
 }
 
+function eligibleForCourtesy(state: GameState, id: PlayerId): readonly Tile[] {
+  return state.config.charleston.allowJokersInCharleston
+    ? state.players[id].hand
+    : state.players[id].hand.filter((t) => !("honor" in t) || t.honor !== "joker");
+}
+
 const seedArb = fc.string({ minLength: 1, maxLength: 16 });
 
 describe("reduceCharlestonPass validation", () => {
@@ -82,6 +88,19 @@ describe("reduceCharlestonPass validation", () => {
     };
     const action = pass(0, initial.players[0].hand.slice(0, 3));
     const result = reduce(terminalState, action);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.kind).toBe("wrongPhase");
+  });
+
+  it("rejects at the courtesy substep", () => {
+    const initial = makeInitialState(baseOpts);
+    const atCourtesy: GameState = {
+      ...initial,
+      phase: { kind: "charleston", step: { kind: "courtesy", offers: {} } },
+    };
+    const action = pass(0, initial.players[0].hand.slice(0, 3));
+    const result = reduce(atCourtesy, action);
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.kind).toBe("wrongPhase");
@@ -636,12 +655,6 @@ describe("reduceCourtesyPassDeclare single submission", () => {
     expect(next.phase.step.offers[0]).toEqual({ tiles });
   });
 });
-
-function eligibleForCourtesy(state: GameState, id: PlayerId): readonly Tile[] {
-  return state.config.charleston.allowJokersInCharleston
-    ? state.players[id].hand
-    : state.players[id].hand.filter((t) => !("honor" in t) || t.honor !== "joker");
-}
 
 describe("reduceCourtesyPassDeclare resolution", () => {
   function declareAll(
