@@ -15,6 +15,10 @@ This project is a single-developer + AI-assistant collaboration. The cadence for
 
 Only 1-2 issues exist in the backlog at any time. Batch-filing all upcoming engine issues was considered and rejected: implementation learnings from PR N inform issue N+1, and stale issues are worse than absent ones.
 
+## Deferring cleanups
+
+When an audit, review, or implementation surfaces a cleanup that isn't worth doing now, name the trigger condition that would make it worth doing later — *"extract X at N=2"*, *"move Y to a shared module when the discard handler lands"*. Deferrals without a trigger become permanent debt; deferrals with one come back into focus the moment the condition fires.
+
 ## Specs are authoritative; issues are tactical
 
 [`docs/rules.md`](rules.md) and [`docs/engine-architecture.md`](engine-architecture.md) are the long-term spec. Issues reference them and add per-PR detail (scope, acceptance criteria, gotchas). When in doubt, the spec wins and the issue gets corrected.
