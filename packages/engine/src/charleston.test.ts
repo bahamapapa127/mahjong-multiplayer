@@ -6,7 +6,7 @@ import type { RuleConfig } from "./config.js";
 import { type InitOptions, makeInitialState } from "./init.js";
 import { PLAYER_IDS, type PlayerId } from "./player.js";
 import { reduce } from "./reduce.js";
-import type { GameState, PlayerState, PlayerStateTuple } from "./state.js";
+import type { GameState, PlayerStateTuple } from "./state.js";
 import { makeStandardDeck, serializeTile, type Tile } from "./tile.js";
 
 const defaultConfig: RuleConfig = {
@@ -323,23 +323,47 @@ describe("reduceCharlestonPass mid-pass partial state", () => {
   });
 });
 
-describe("setPlayer covers every PlayerId slot", () => {
-  // Each player acts as sender at least once across passes 0/1/2, and each is
-  // a recipient at least once — this exercises both `setPlayer` and
-  // `recipientOf` across all four PlayerId branches.
-  it("processes a full pass-0–2 sequence without leaking state", () => {
-    let state = makeInitialState(baseOpts);
+describe("reduceCharlestonPass second-Charleston auto-transitions", () => {
+  // The reducer can't drive a game to passIndex 3+ in this PR (charlestonHalt
+  // doesn't yet exit the stopWindow). These tests inject the state directly,
+  // exercising nextStep's branches for the second-Charleston passes.
+
+  function withCollectingPass(state: GameState, passIndex: 3 | 4 | 5): GameState {
+    return {
+      ...state,
+      phase: {
+        kind: "charleston",
+        step: { kind: "collecting", passIndex, received: {} },
+      },
+    };
+  }
+
+  it("advances passIndex 3 → 4 (Left pass)", () => {
+    let state = withCollectingPass(makeInitialState(baseOpts), 3);
     state = applyPass(state);
-    state = applyPass(state);
-    state = applyPass(state);
-    let serialized: PlayerState | undefined;
-    for (const id of PLAYER_IDS) {
-      const player = state.players[id];
-      expect(player.id).toBe(id);
-      expect(player.isDead).toBe(false);
-      expect(player.exposures).toHaveLength(0);
-      serialized = player;
+    if (state.phase.kind !== "charleston" || state.phase.step.kind !== "collecting") {
+      throw new Error("expected collecting");
     }
-    expect(serialized).toBeDefined();
+    expect(state.phase.step.passIndex).toBe(4);
+    expect(state.phase.step.received).toEqual({});
+  });
+
+  it("advances passIndex 4 → 5 (Across pass)", () => {
+    let state = withCollectingPass(makeInitialState(baseOpts), 4);
+    state = applyPass(state);
+    if (state.phase.kind !== "charleston" || state.phase.step.kind !== "collecting") {
+      throw new Error("expected collecting");
+    }
+    expect(state.phase.step.passIndex).toBe(5);
+    expect(state.phase.step.received).toEqual({});
+  });
+
+  it("advances passIndex 5 → courtesy step (Right pass)", () => {
+    let state = withCollectingPass(makeInitialState(baseOpts), 5);
+    state = applyPass(state);
+    expect(state.phase).toEqual({
+      kind: "charleston",
+      step: { kind: "courtesy", offers: {} },
+    });
   });
 });

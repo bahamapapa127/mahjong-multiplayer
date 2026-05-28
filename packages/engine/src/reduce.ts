@@ -32,6 +32,7 @@ function dispatch(state: GameState, action: Action): Result<GameState, EngineErr
   }
 }
 
+/** Apply an action to a game state, returning a new state or a typed error. */
 export function reduce(state: GameState, action: Action): Result<GameState, EngineError> {
   try {
     return dispatch(state, action);

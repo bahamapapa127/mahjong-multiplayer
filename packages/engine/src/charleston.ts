@@ -45,13 +45,12 @@ function setPlayer(players: PlayerStateTuple, id: PlayerId, next: PlayerState): 
 }
 
 function nextStep(passIndex: CharlestonPassIndex): CharlestonStep {
-  if (passIndex === 0) {
-    return { kind: "collecting", passIndex: 1, received: {} };
-  }
-  if (passIndex === 1) {
-    return { kind: "collecting", passIndex: 2, received: {} };
-  }
-  return { kind: "stopWindow" };
+  if (passIndex === 0) return { kind: "collecting", passIndex: 1, received: {} };
+  if (passIndex === 1) return { kind: "collecting", passIndex: 2, received: {} };
+  if (passIndex === 2) return { kind: "stopWindow" };
+  if (passIndex === 3) return { kind: "collecting", passIndex: 4, received: {} };
+  if (passIndex === 4) return { kind: "collecting", passIndex: 5, received: {} };
+  return { kind: "courtesy", offers: {} };
 }
 
 type PassEntry = { readonly tiles: readonly Tile[]; readonly blind: boolean };
