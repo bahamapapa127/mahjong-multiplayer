@@ -278,8 +278,10 @@ A hand reaches a **terminal state** in one of two ways.
 A player successfully declares and validates mahjong:
 
 ```ts
-{ kind: 'mahjong', winner: PlayerId, hand: Hand, claimedFrom: 'wall' | PlayerId }
+{ kind: 'mahjong', winner: PlayerId, handId: string, claimedFrom: 'wall' | PlayerId }
 ```
+
+The outcome carries the matched hand's stable `id`, not the full `Hand` object: the id stays valid across card versions and keeps `GameOutcome` cheaply serializable for the server's action log. See [`engine-architecture.md`](engine-architecture.md) `GameOutcome`.
 
 ### Wall game
 

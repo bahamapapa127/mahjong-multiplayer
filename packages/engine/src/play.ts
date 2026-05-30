@@ -1,16 +1,9 @@
 import type { Action } from "./action.js";
 import type { EngineError } from "./errors.js";
-import type { PlayerId } from "./player.js";
 import type { Result } from "./result.js";
-import type { GameState, PlayerState, PlayerStateTuple } from "./state.js";
+import type { GameState, PlayerState } from "./state.js";
+import { setPlayer } from "./state-update.js";
 import { isJoker, removeTiles } from "./tile.js";
-
-function setPlayer(players: PlayerStateTuple, id: PlayerId, next: PlayerState): PlayerStateTuple {
-  if (id === 0) return [next, players[1], players[2], players[3]];
-  if (id === 1) return [players[0], next, players[2], players[3]];
-  if (id === 2) return [players[0], players[1], next, players[3]];
-  return [players[0], players[1], players[2], next];
-}
 
 export function reduceDiscard(
   state: GameState,
