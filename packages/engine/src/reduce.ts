@@ -5,6 +5,7 @@ import {
   reduceCourtesyPassDeclare,
 } from "./charleston.js";
 import type { EngineError } from "./errors.js";
+import { reduceDiscard } from "./play.js";
 import type { Result } from "./result.js";
 import type { GameState } from "./state.js";
 
@@ -26,7 +27,7 @@ function dispatch(state: GameState, action: Action): Result<GameState, EngineErr
     case "jokerSwap":
       return notImplemented("jokerSwap");
     case "discard":
-      return notImplemented("discard");
+      return reduceDiscard(state, action);
     case "declareMahjongSelfPick":
       return notImplemented("declareMahjongSelfPick");
     case "resolveClaimWindow":

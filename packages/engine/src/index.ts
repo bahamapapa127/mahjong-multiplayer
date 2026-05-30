@@ -29,8 +29,10 @@ export type {
 export type { DragonColor, Suit, SuitedValue, Tile, Wind } from "./tile.js";
 export {
   DRAGON_COLORS,
+  isJoker,
   makeStandardDeck,
   parseTile,
+  removeTiles,
   SUITED_VALUES,
   SUITS,
   serializeTile,

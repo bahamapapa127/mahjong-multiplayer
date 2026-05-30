@@ -11,7 +11,7 @@ import type {
 import type { PlayerId } from "./player.js";
 import type { Result } from "./result.js";
 import type { GameState, PlayerState, PlayerStateTuple } from "./state.js";
-import { type Tile, tilesEqual } from "./tile.js";
+import { isJoker, removeTiles, type Tile } from "./tile.js";
 
 // ROLLOR direction encoded as CCW offset from sender to recipient.
 // rules.md §4: turn order is counterclockwise — the player one CCW seat away
@@ -28,20 +28,6 @@ function recipientOf(player: PlayerId, passIndex: CharlestonPassIndex): PlayerId
   if (raw === 1) return 1;
   if (raw === 2) return 2;
   return 3;
-}
-
-function removeTiles(hand: readonly Tile[], toRemove: readonly Tile[]): Result<Tile[], Tile> {
-  const result = [...hand];
-  for (const tile of toRemove) {
-    const idx = result.findIndex((t) => tilesEqual(t, tile));
-    if (idx === -1) return { ok: false, error: tile };
-    result.splice(idx, 1);
-  }
-  return { ok: true, value: result };
-}
-
-function isJoker(tile: Tile): boolean {
-  return "honor" in tile && tile.honor === "joker";
 }
 
 function setPlayer(players: PlayerStateTuple, id: PlayerId, next: PlayerState): PlayerStateTuple {
