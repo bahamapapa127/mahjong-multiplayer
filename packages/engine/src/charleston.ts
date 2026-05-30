@@ -11,6 +11,7 @@ import type {
 import type { PlayerId } from "./player.js";
 import type { Result } from "./result.js";
 import type { GameState, PlayerState, PlayerStateTuple } from "./state.js";
+import { setPlayer } from "./state-update.js";
 import { isJoker, removeTiles, type Tile } from "./tile.js";
 
 // ROLLOR direction encoded as CCW offset from sender to recipient.
@@ -28,13 +29,6 @@ function recipientOf(player: PlayerId, passIndex: CharlestonPassIndex): PlayerId
   if (raw === 1) return 1;
   if (raw === 2) return 2;
   return 3;
-}
-
-function setPlayer(players: PlayerStateTuple, id: PlayerId, next: PlayerState): PlayerStateTuple {
-  if (id === 0) return [next, players[1], players[2], players[3]];
-  if (id === 1) return [players[0], next, players[2], players[3]];
-  if (id === 2) return [players[0], players[1], next, players[3]];
-  return [players[0], players[1], players[2], next];
 }
 
 function nextStep(passIndex: 0 | 1 | 2 | 3 | 4): CharlestonStep {
@@ -120,6 +114,21 @@ export function reduceCharlestonPass(
       error: {
         kind: "invalidCharlestonPass",
         reason: "must pass exactly 3 tiles",
+      },
+    };
+  }
+  // rules.md §3: a blind pass is only legal on a Left pass and only when the host
+  // enabled it. PASS_OFFSET is 1 for exactly the two Left passes (indexes 2 and 3),
+  // so it doubles as the "is this a Left pass" test.
+  if (
+    action.blind &&
+    (!state.config.charleston.allowBlindPasses || PASS_OFFSET[step.passIndex] !== 1)
+  ) {
+    return {
+      ok: false,
+      error: {
+        kind: "invalidCharlestonPass",
+        reason: "blind passes are only allowed on a left pass when enabled",
       },
     };
   }

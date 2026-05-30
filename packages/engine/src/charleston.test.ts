@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Action } from "./action.js";
 import type { RuleConfig } from "./config.js";
 import { makeInitialState } from "./init.js";
+import type { CharlestonPassIndex } from "./phase.js";
 import { PLAYER_IDS, type PlayerId } from "./player.js";
 import { reduce } from "./reduce.js";
 import type { GameState, PlayerStateTuple } from "./state.js";
@@ -180,10 +181,14 @@ describe("reduceCharlestonPass happy path", () => {
     expect(next.phase.step.received[1]).toEqual({ tiles, blind: false });
   });
 
-  it("preserves the blind flag", () => {
+  it("preserves the blind flag on a left pass", () => {
     const initial = makeInitialState(baseOpts);
-    const tiles = initial.players[1].hand.slice(0, 3);
-    const next = step(initial, pass(1, tiles, true));
+    const atLeftPass: GameState = {
+      ...initial,
+      phase: { kind: "charleston", step: { kind: "collecting", passIndex: 2, received: {} } },
+    };
+    const tiles = atLeftPass.players[1].hand.slice(0, 3);
+    const next = step(atLeftPass, pass(1, tiles, true));
     if (next.phase.kind !== "charleston" || next.phase.step.kind !== "collecting") {
       throw new Error("expected collecting phase");
     }
@@ -204,6 +209,37 @@ describe("reduceCharlestonPass happy path", () => {
     ]);
     const result = reduce(state, pass(0, [joker, joker, joker]));
     expect(result.ok).toBe(true);
+  });
+});
+
+describe("reduceCharlestonPass blind-pass validation", () => {
+  function atPass(state: GameState, passIndex: CharlestonPassIndex): GameState {
+    return {
+      ...state,
+      phase: { kind: "charleston", step: { kind: "collecting", passIndex, received: {} } },
+    };
+  }
+
+  it("rejects a blind pass on a non-left pass", () => {
+    const initial = makeInitialState(baseOpts); // passIndex 0 is a Right pass
+    const tiles = initial.players[0].hand.slice(0, 3);
+    const result = reduce(initial, pass(0, tiles, true));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.kind).toBe("invalidCharlestonPass");
+  });
+
+  it("rejects a blind pass when allowBlindPasses is disabled", () => {
+    const strict: RuleConfig = {
+      ...defaultConfig,
+      charleston: { ...defaultConfig.charleston, allowBlindPasses: false },
+    };
+    const initial = atPass(makeInitialState({ ...baseOpts, config: strict }), 2);
+    const tiles = initial.players[0].hand.slice(0, 3);
+    const result = reduce(initial, pass(0, tiles, true));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.kind).toBe("invalidCharlestonPass");
   });
 });
 
