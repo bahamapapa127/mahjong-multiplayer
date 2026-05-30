@@ -17,13 +17,7 @@
       "inputs": ["src/**", "package.json", "../../biome.json"]
     },
     "test": {
-      "dependsOn": ["^build"],
       "outputs": [],
-      "inputs": ["src/**", "package.json", "tsconfig.json", "vitest.config.ts"]
-    },
-    "test:coverage": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"],
       "inputs": ["src/**", "package.json", "tsconfig.json", "vitest.config.ts"]
     }
   }
