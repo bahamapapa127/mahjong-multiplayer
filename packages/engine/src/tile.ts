@@ -1,3 +1,5 @@
+import type { Result } from "./result.js";
+
 export type Suit = "crak" | "bam" | "dot";
 export type Wind = "N" | "E" | "S" | "W";
 export type DragonColor = "red" | "green" | "white";
@@ -120,4 +122,23 @@ export function makeStandardDeck(): Tile[] {
     deck.push({ honor: "joker" });
   }
   return deck;
+}
+
+/** True iff the tile is a joker. */
+export function isJoker(tile: Tile): boolean {
+  return "honor" in tile && tile.honor === "joker";
+}
+
+/** Remove a multiset of tiles from a hand. Returns the remaining hand on success, or the first missing tile on failure. */
+export function removeTiles(
+  hand: readonly Tile[],
+  toRemove: readonly Tile[],
+): Result<Tile[], Tile> {
+  const result = [...hand];
+  for (const tile of toRemove) {
+    const idx = result.findIndex((t) => tilesEqual(t, tile));
+    if (idx === -1) return { ok: false, error: tile };
+    result.splice(idx, 1);
+  }
+  return { ok: true, value: result };
 }

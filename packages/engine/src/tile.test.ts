@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   DRAGON_COLORS,
   type DragonColor,
+  isJoker,
   makeStandardDeck,
   parseTile,
+  removeTiles,
   SUITED_VALUES,
   SUITS,
   type Suit,
@@ -292,5 +294,81 @@ describe("property: malformed input rejection", () => {
         return serializeTile(parsed) === s;
       }),
     );
+  });
+});
+
+describe("isJoker", () => {
+  it("returns true for a joker", () => {
+    expect(isJoker({ honor: "joker" })).toBe(true);
+  });
+
+  it("returns false for a flower", () => {
+    expect(isJoker({ honor: "flower" })).toBe(false);
+  });
+
+  it("returns false for a suited tile", () => {
+    expect(isJoker({ suit: "crak", value: 5 })).toBe(false);
+  });
+
+  it("returns false for a wind", () => {
+    expect(isJoker({ honor: "wind", wind: "E" })).toBe(false);
+  });
+
+  it("returns false for a dragon", () => {
+    expect(isJoker({ honor: "dragon", color: "red" })).toBe(false);
+  });
+});
+
+describe("removeTiles", () => {
+  const five: Tile = { suit: "crak", value: 5 };
+  const two: Tile = { suit: "bam", value: 2 };
+  const flower: Tile = { honor: "flower" };
+
+  it("removes a single tile from a hand", () => {
+    const result = removeTiles([five, two, flower], [five]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value).toEqual([two, flower]);
+  });
+
+  it("removes multiple tiles in one call", () => {
+    const result = removeTiles([five, two, flower], [two, flower]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value).toEqual([five]);
+  });
+
+  it("returns the missing tile on failure", () => {
+    const result = removeTiles([five, two], [flower]);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toEqual(flower);
+  });
+
+  it("respects multiset semantics — duplicates are removed one at a time", () => {
+    const result = removeTiles([five, five, five], [five, five]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value).toEqual([five]);
+  });
+
+  it("returns the missing tile if a duplicate is over-requested", () => {
+    const result = removeTiles([five], [five, five]);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toEqual(five);
+  });
+
+  it("returns the hand unchanged when toRemove is empty", () => {
+    const result = removeTiles([five, two], []);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value).toEqual([five, two]);
+  });
+
+  it("does not mutate the input hand", () => {
+    const hand: Tile[] = [five, two, flower];
+    removeTiles(hand, [two]);
+    expect(hand).toEqual([five, two, flower]);
   });
 });

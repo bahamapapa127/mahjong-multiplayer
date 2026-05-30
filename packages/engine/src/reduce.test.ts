@@ -25,10 +25,6 @@ describe("reduce dispatch", () => {
     );
   });
 
-  it("stubs discard", () => {
-    assertNotImplemented({ kind: "discard", player: 0, tile: flower }, "discard");
-  });
-
   it("stubs declareMahjongSelfPick", () => {
     assertNotImplemented(
       { kind: "declareMahjongSelfPick", player: 0, handId: "h-1" },
