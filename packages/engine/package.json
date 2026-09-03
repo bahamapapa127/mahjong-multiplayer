@@ -18,7 +18,7 @@
     "@mahjong/shared": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "24.12.4",
-    "fast-check": "4.8.0"
+    "@types/node": "24.13.3",
+    "fast-check": "4.9.0"
   }
 }
